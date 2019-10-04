@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab 1</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="head">
+        <span id="head-title">
+            Лабораторная работа №1. Вариант 214003
+        </span>
+        <img src="img/vt-logo.png" alt="logo"><br>
+        <span id="head-author">
+            Выполнил студент группы P3214 Гораш Вячеслав Игоревич
+        </span>
+    </div>
+    <div class="main">
+        <h1>Определение попадания точки в область</h1>
+        <img src="img/areas.png" alt="areas" style="float: right; margin-right: 150px">
+        <form id="main-form" action="handler.php" method="get">
+            <h2>Выберете координату X</h2>
+            <label>
+                <input type="checkbox" name="X[]" value="-5">-5<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="-4">-4<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="-3">-3<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="-2">-2<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="-1">-1<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="0">0<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="1">1<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="2">2<br>
+            </label>
+            <label>
+                <input type="checkbox" name="X[]" value="3">3<br>
+            </label>
+            <p class="warn-checkbox" hidden>Не отмечено ни одного элемента</p>
+            <h2>Введите координату Y</h2>
+            <label>
+                <input type="text" name="Y" placeholder="от -3 до 3" onkeyup="checkY(event);">
+            </label>
+            <p class="warn-checkbox" hidden>Введено не число</p>
+            <p class="warn-checkbox" hidden>Число выходит за пределы интервала </p>
+            <h2>Введите радиус</h2>
+            <label>
+                <input type="text" name="R" placeholder="от 2 до 5" onkeyup="checkR(event);">
+            </label>
+            <input type="hidden" name="offset">
+            <p class="warn-checkbox" hidden>Введено не число</p>
+            <p class="warn-checkbox" hidden>Число выходит за пределы интервала </p><br>
+            <button type="submit" class="submit-button">Проверить</button>
+            <button type="button" class="submit-button" style="margin-left: 20px">Очистить</button>
+        </form>
+    </div>
+<script>
+    document.getElementsByClassName("submit-button")[0].addEventListener("click", check);
+    document.getElementsByClassName("submit-button")[1].addEventListener("click", clear);
+    let warn_checkbox = document.getElementsByClassName("warn-checkbox")[0];
+    let warn_y_nan = document.getElementsByClassName("warn-checkbox")[1];
+    let warn_y_int = document.getElementsByClassName("warn-checkbox")[2];
+    let warn_r_nan = document.getElementsByClassName("warn-checkbox")[3];
+    let warn_r_int = document.getElementsByClassName("warn-checkbox")[4];
+    let yField = document.forms["main-form"]["Y"];
+    let rField = document.forms["main-form"]["R"];
+    let boxes = document.forms["main-form"]["X[]"];
+    let xChecked = false;
+    let yChecked = false;
+    let rChecked = false;
+    for (let i of boxes) {
+        i.addEventListener("change", checkbox);
+    }
+    document.forms["main-form"]["offset"].value = new Date().getTimezoneOffset();
+    let button = document.getElementsByClassName("submit-button")[0];
+    button.setAttribute("disabled", "disable");
+    function check(event) {
+        checkbox(event);
+        checkY(event);
+        checkR(event);
+        if (yChecked) {
+            yField.value = Number(yField.value);
+        }
+        if (rChecked) {
+            rField.value = Number(rField.value);
+        }
+    }
+
+    function checkbox(event) {
+        let counter = 0;
+        for (let i of boxes) {
+            if (i.checked) {
+                counter += 1;
+            }
+        }
+        if (counter <= 0) {
+            event.preventDefault();
+            warn_checkbox.hidden = false;
+            xChecked = false;
+        } else {
+            warn_checkbox.hidden = true;
+            xChecked = true;
+        }
+        blockButton();
+
+    }
+
+    function checkY(event) {
+        yField.value = yField.value.replace(",", ".");
+        if (!isFinite(Number(yField.value)) || !(/0*/).test(yField.value) && Number(yField.value) === 0) {
+            event.preventDefault();
+            yField.classList.add("warn-text");
+            yChecked = false;
+            warn_y_nan.hidden = false;
+            warn_y_int.hidden = true;
+        } else if (Number(yField.value) < -3 || Number(yField.value) > 3) {
+            event.preventDefault();
+            yField.classList.add("warn-text");
+            yChecked = false;
+            warn_y_int.hidden = false;
+            warn_y_nan.hidden = true;
+        } else {
+            yField.classList.remove("warn-text");
+            yChecked = true;
+            warn_y_nan.hidden = true;
+            warn_y_int.hidden = true;
+        }
+        blockButton();
+    }
+
+    function checkR(event) {
+        rField.value = rField.value.replace(",", ".");
+        if (!isFinite(Number(rField.value)) || !(/0*/).test(rField.value) && Number(rField.value) === 0) {
+            event.preventDefault();
+            rField.classList.add("warn-text");
+            rChecked = false;
+            warn_r_nan.hidden = false;
+            warn_r_int.hidden = true;
+        } else if (Number(rField.value) < 2 || Number(rField.value) > 5) {
+            event.preventDefault();
+            rField.classList.add("warn-text");
+            rChecked = false;
+            warn_r_int.hidden = false;
+            warn_r_nan.hidden = true;
+        } else {
+            rField.classList.remove("warn-text");
+            rChecked = true;
+            warn_r_nan.hidden = true;
+            warn_r_int.hidden = true;
+        }
+        blockButton();
+    }
+
+    function clear() {
+        yField.value = "";
+        rField.value = "";
+        for (let i of boxes) {
+            i.checked = false;
+        }
+        warn_checkbox.hidden = true;
+        yField.classList.remove("warn-text");
+        rField.classList.remove("warn-text");
+        button.setAttribute("disabled", "disable");
+        xChecked = false;
+        yChecked = false;
+        rChecked = false;
+        warn_y_nan.hidden = true;
+        warn_y_int.hidden = true;
+        warn_r_nan.hidden = true;
+        warn_r_int.hidden = true;
+
+    }
+
+    function blockButton() {
+        if (!(xChecked && yChecked && rChecked)) {
+            button.setAttribute("disabled", "disable");
+        } else {
+            button.removeAttribute("disabled")
+        }
+    }
+</script>
+</body>
+</html>
